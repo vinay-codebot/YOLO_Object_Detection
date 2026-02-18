@@ -12,6 +12,27 @@ This project uses YOLOv8, a deep learning model, to detect objects in images. Th
 - ## Screenshot proof 
   ![Detection Result](Day1_Screenshot.png)
 
-## Next Steps
-- Extend YOLO on webcam for real-time object detection
-- Add optional improvements like object counting or tracking
+## Day 2 progress
+- Webcam integration:
+  Used cv2.VideoCapture(0) to access the system webcam.
+  Ensures that detection is tested on dynamic, real-world input.
+
+- FPS measurement and smoothing:
+  Calculated FPS per frame to measure speed: fps = 1 / (current_time - prev_time)
+  Applied moving average over last 10 frames → reduces fluctuations and makes FPS more reliable for analysis.
+
+- Logging:
+  Logs stored in outputs/logs/logs.txt
+  Each log includes timestamp, FPS, number of objects detected, and confidence scores.
+  Purpose: Quantitative evidence for research comparison.
+
+-Video recording and screenshots:
+  Annotated frames saved to video using cv2.VideoWriter.
+  Key frames saved as screenshots using cv2.imwrite.
+  Purpose: Provides visual proof of detection performance.
+
+## Next step
+- Compare YOLOv8s vs YOLOv8n inference models to analyze speed vs accuracy trade-offs.
+- Try YOLOv8s custom training :
+  Fine-tune on your dataset to detect obstacles better.
+  Compare FPS and accuracy after fine-tuning.
