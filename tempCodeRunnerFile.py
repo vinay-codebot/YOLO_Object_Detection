@@ -1,2 +1,2 @@
- num_objects = len(results[0].boxes)
-    confidences = results[0].boxes.conf.tolist()  
+with open(log_file,"r") as f:
+    for line in f:
