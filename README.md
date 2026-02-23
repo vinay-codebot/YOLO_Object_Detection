@@ -1,92 +1,57 @@
-# YOLOv8 Object Detection Project
+# YOLOv8 Object Detection: Comparative Analysis
 
 ## Overview
-- This project focuses on comparing YOLOv8 models for object detection in vedio data. 
-  Using a sample video, we analyzed the accuracy, speed, and usability of both models based on frame-by-frame detections and confidence scores.
-- The goal was to:
- - Evaluate model accuracy using confidence scores per frame.
- - Identify anomalies—frames with low confidence or inconsistent detections.
- - Assess speed and practical usability for real-time video processing.
- - Provide visual and numerical insights for model selection
+This project compares two YOLOv8 models — YOLOv8n and YOLOv8s — for object detection in video data. The goal is to evaluate their performance in terms of **accuracy, speed, and real-time usability**, and provide guidance on model selection for practical applications such as robotics and edge AI.
 
-## Day 1 Progress
-- Python virtual environment setup completed
-- Required libraries installed: PyTorch, OpenCV, Ultralytics YOLOv8
-- YOLOv8 pre-trained model downloaded (yolov8n.pt)
-- Detection works on a sample image (`sample.jpg`)
-- Detection output saved as `sample_detected.jpg`
-- ## Screenshot proof 
-  ![Detection Result](Day1_Screenshot.png)
+## Methodology
+- **Setup:**  
+  - GPU-enabled inference using Python, OpenCV, and Ultralytics YOLOv8.  
+  - Pre-trained models `yolov8n.pt` and `yolov8s.pt` used for evaluation.
 
-## Day 2 progress
-- Webcam integration:
-  Used cv2.VideoCapture(0) to access the system webcam.
-  Ensures that detection is tested on dynamic, real-world input.
+- **Inference & Logging:**  
+  - Each frame of the sample video was processed to detect objects.  
+  - Logs record timestamp, FPS, number of objects, and per-object confidence scores.
 
-- FPS measurement and smoothing:
-  Calculated FPS per frame to measure speed: fps = 1 / (current_time - prev_time)
-  Applied moving average over last 10 frames → reduces fluctuations and makes FPS more reliable for analysis.
+- **Metrics Computed:**  
+  - **Accuracy:** Mean confidence per frame (`conf_mean`).  
+  - **Stability:** Standard deviation of confidence (`conf_std`), and min/max confidence per frame.  
+  - **Usability:** Frames with confidence ≥ 0.5 and FPS ≥ 15.  
+  - **Anomalies:** Frames where `conf_max < 0.5`, `conf_mean < 0.4`, or `conf_std > 0.25`.
 
-- Logging:
-  Logs stored in outputs/logs/logs.txt
-  Each log includes timestamp, FPS, number of objects detected, and confidence scores.
-  Purpose: Quantitative evidence for research comparison.
+- **Visualization:**  
+  - Rolling average (10 frames) applied to FPS and confidence to reduce noise.  
+  - Generated plots include:  
+    - Smoothed confidence per frame for both models.  
+    - FPS per frame comparison.  
+    - Accuracy vs Speed scatter plot.  
+    - Highlighted anomalies in red/orange for visual reference.
 
--Video recording and screenshots:
-  Annotated frames saved to video using cv2.VideoWriter.
-  Key frames saved as screenshots using cv2.imwrite.
-  Purpose: Provides visual proof of detection performance.
+## Key Results
 
-# Day 3 progress
-- Logs Parsing:
-  - Converted raw logs into CSV files using Python:
-    -Extracted min, max, mean, std of confidence per frame.
-  - Created a structured DataFrame for analysis:
-    df_s = pd.read_csv("yolov8s_log_parsed.csv")
-    df_n = pd.read_csv("yolov8n_log_parsed.csv")
+| Metric            | YOLO-s | YOLO-n |
+|-------------------|--------|--------|
+| Mean Confidence   | 0.563  | 0.420  |
+| Max Confidence    | 0.973  | 0.939  |
+| Std Confidence    | 0.197  | 0.133  |
+| Anomaly Frames    | 516    | 720    |
+| Average FPS       | 29.89  | 30.14  |
+| Max FPS           | 50.31  | 46.03  |
+| Usable Frames     | 1129   | 620    |
 
-- Anomaly Detection:
-  - Defined anomalous frames based on thresholds:
-     conf_max < 0.5
-     conf_mean < 0.4
-     conf_std > 0.25
-  - These frames indicate low-confidence detections or inconsistent results:
-    anomalies_s = df_s[
-        (df_s['conf_max'] < 0.5) |
-        (df_s['conf_mean'] < 0.4) |
-        (df_s['conf_std'] > 0.25)
-     ]
-  - Observation:
-     - Yolo-n has silghtly more anamolies than YOLO-s.
-       Which means YOLO-s outperformes YOLO-n in detection stability. YOLO-n priortizes speed over robustness.
+### Observations
+- YOLO-s shows higher accuracy and fewer anomaly frames, making it more reliable for real-time applications.  
+- YOLO-n is slightly faster but has lower confidence and more unusable frames.  
+- Overall, YOLO-s is better suited when accuracy and stability are critical, while YOLO-n can be considered when speed or lightweight deployment is prioritized.
 
-- Metrics for evaluation:
-    We focused on three major metrics:
-     - Accuracy : Confidence of correct detection by taking Mean confidence of objects per frame (conf_mean)
-     - Usability/Speed : Practical performance in real-time by taking FPS per
-       frame, cumulative usable frames (confidence > threshold & FPS > 15).
-  - Contibution of each confidence measures:
-      conf_min: Lowest detection confidence in frame; identifies risky detections.
-      conf_max: Highest detection confidence; identifies strong detections.
-      conf_mean: Average confidence; main metric for accuracy.
-      conf_std: Spread of confidences; high value indicates inconsistent
-                detection in frame.
-  
-- Visualization:
- Generated three separate graphs:
-  - Accuracy per Frame
-     Plotted mean confidence for YOLO-s and YOLO-n.
-     Red/Orange dots highlight anomalies.
-  - Speed per Frame
-     Binary plot showing which frames are anomalous (1 = anomaly, 0 = normal).
-     Helps detect patterns where models struggle.
-  - Usable Frames
-    Frames where confidence > threshold AND FPS > 15.
-    Shows real-time usability of models.
-                        
-- Numerical Comparison Table:
-   - Shows tradeoff:
-       YOLO-s has higher accuray but it slower.
-       YOLO-n is faster,better real-time usability but inconsistent and less 
-       accuracy.
-  
+## Visual Evidence
+- Smoothed confidence comparison:  
+  ![Confidence Comparison](outputs/plots/confidence_comparison.png)  
+- Accuracy per frame with anomalies:  
+  ![Accuracy vs Frame](outputs/plots/accuracy_with_anamolies_vs_frame.png)  
+- FPS comparison:  
+  ![FPS Comparison](outputs/plots/fps_comparison.png)  
+- Accuracy vs speed scatter:  
+  ![Accuracy vs Speed](outputs/plots/accuracy_vs_speed.png)  
+
+## Conclusion
+This comparative analysis of YOLOv8n and YOLOv8s demonstrates the trade-off between speed and accuracy in lightweight object detection models. YOLO-s achieved a mean confidence of 0.563 with 516 anomaly frames and 1129 usable frames, indicating higher reliability and stability. YOLO-n, with a mean confidence of 0.420 and 720 anomaly frames, is slightly faster but less consistent. These results provide quantitative evidence for selecting an appropriate model based on deployment requirements: YOLO-s for accuracy-critical applications and YOLO-n for speed-constrained environments. The study also highlights patterns in anomaly frames, offering insights into scenarios where each model may fail, which can guide further optimization for real-world applications.
